@@ -1,7 +1,5 @@
 package com.arthenica.ffmpegkit;
 
-import org.json.JSONObject;
-
 /**
  * Stream information class.
  */
