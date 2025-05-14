@@ -23,6 +23,6 @@ package com.arthenica.ffmpegkit;
 /**
  * <p>Executes an FFmpeg session asynchronously.
  */
-public class AsyncFFmpegExecuteTask implements Runnable {
+public class AsyncFFmpegExecuteTask {
     // Placeholder implementation
 }
