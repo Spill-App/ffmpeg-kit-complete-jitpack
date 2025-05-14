@@ -1,5 +1,14 @@
 package com.arthenica.ffmpegkit;
 
-public class FFmpegKit {
+import java.util.List;
+import java.util.ArrayList;
 
+public class FFmpegKit {
+    public static void cancel() {}
+    
+    public static void cancel(long sessionId) {}
+    
+    public static List<Session> listSessions() {
+        return new ArrayList<>();
+    }
 }
