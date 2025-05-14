@@ -1,6 +1,7 @@
 package com.arthenica.ffmpegkit;
 
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  * FFmpeg session.

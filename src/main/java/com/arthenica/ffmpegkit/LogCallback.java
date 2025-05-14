@@ -1,5 +1,5 @@
 package com.arthenica.ffmpegkit;
 
-public class LogCallback {
-
+public interface LogCallback {
+    void apply(Log log);
 }

@@ -1,10 +1,9 @@
 package com.arthenica.ffmpegkit;
 
-import android.content.Context;
-import android.net.Uri;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 /**
  * FFmpeg Kit configuration.
@@ -21,9 +20,12 @@ public class FFmpegKitConfig {
     public static void enableRedirection() {}
     public static void disableRedirection() {}
     public static void setFontconfigConfigurationPath(String path) {}
-    public static void setFontDirectory(Context context, String fontDirectoryPath, Map<String, String> fontNameMapping) {}
-    public static void setFontDirectoryList(Context context, List<String> fontDirectoryList, Map<String, String> fontNameMapping) {}
-    public static String registerNewFFmpegPipe(Context context) { return ""; }
+    
+    // Replace Context with Object to avoid Android dependencies
+    public static void setFontDirectory(Object context, String fontDirectoryPath, Map<String, String> fontNameMapping) {}
+    public static void setFontDirectoryList(Object context, List<String> fontDirectoryList, Map<String, String> fontNameMapping) {}
+    public static String registerNewFFmpegPipe(Object context) { return ""; }
+    
     public static void closeFFmpegPipe(String ffmpegPipePath) {}
     public static String getFFmpegVersion() { return ""; }
     public static boolean isLTSBuild() { return false; }
@@ -39,13 +41,15 @@ public class FFmpegKitConfig {
     public static void setSessionHistorySize(Integer sessionHistorySize) {}
     public static Session getLastSession() { return new Session(); }
     public static Session getLastCompletedSession() { return new Session(); }
-    public static List<Session> getSessions() { return java.util.Collections.emptyList(); }
+    public static List<Session> getSessions() { return new ArrayList<>(); }
     public static void clearSessions() {}
-    public static List<Session> getSessionsByState(SessionState state) { return java.util.Collections.emptyList(); }
+    public static List<Session> getSessionsByState(SessionState state) { return new ArrayList<>(); }
     public static LogRedirectionStrategy getLogRedirectionStrategy() { return LogRedirectionStrategy.NEVER_PRINT_LOGS; }
     public static void setLogRedirectionStrategy(LogRedirectionStrategy strategy) {}
     public static int messagesInTransmit(long sessionId) { return 0; }
-    public static String getSafParameter(Context context, Uri uri, String openMode) { return ""; }
+    
+    // Replace Uri with Object to avoid Android dependencies
+    public static String getSafParameter(Object context, Object uri, String openMode) { return ""; }
     
     // Other utility methods
     public static FFmpegSession executeAsync(String command, ExecuteCallback executeCallback) {
