@@ -12,6 +12,10 @@ public class Session {
     protected ReturnCode returnCode;
     protected SessionState state;
     protected LogCallback logCallback;
+    protected long sessionId;
+    protected Date createTime;
+    protected Date startTime;
+    protected Date endTime;
     
     public String getCommand() {
         return command;
@@ -30,7 +34,7 @@ public class Session {
     }
     
     public Date getEndTime() {
-        return new Date();
+        return endTime;
     }
     
     public long getDuration() {
@@ -67,5 +71,18 @@ public class Session {
     
     public LogCallback getLogCallback() {
         return logCallback;
+    }
+    
+    // New methods
+    public long getSessionId() {
+        return sessionId;
+    }
+    
+    public Date getCreateTime() {
+        return createTime;
+    }
+    
+    public Date getStartTime() {
+        return startTime;
     }
 }

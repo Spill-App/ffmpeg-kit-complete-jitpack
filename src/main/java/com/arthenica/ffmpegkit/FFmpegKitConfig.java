@@ -67,4 +67,8 @@ public class FFmpegKitConfig {
     public static boolean isRedirectionEnabled() {
         return false;
     }
+
+    public static void ffprobeExecute(FFprobeSession ffprobeSession) {}
+    
+    public static void getMediaInformationExecute(MediaInformationSession mediaInformationSession, int timeout) {}
 }
