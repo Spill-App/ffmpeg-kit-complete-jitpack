@@ -20,16 +20,16 @@
 package com.arthenica.ffmpegkit;
 
 /**
- * <p>Callback function that receives logs generated for <code>FFmpegKit</code> sessions.
+ * <p>Callback function that is invoked when an asynchronous <code>FFmpeg</code> session has ended.
  */
 @FunctionalInterface
-public interface LogCallback {
+public interface FFmpegSessionCompleteCallback {
 
     /**
-     * <p>Called when a log entry is received.
+     * <p>Called when an FFmpeg session has ended.
      *
-     * @param log log entry
+     * @param session FFmpeg session
      */
-    void apply(final Log log);
+    void apply(final FFmpegSession session);
 
 }

@@ -20,16 +20,16 @@
 package com.arthenica.ffmpegkit;
 
 /**
- * <p>Callback function that receives logs generated for <code>FFmpegKit</code> sessions.
+ * <p>Callback function that receives statistics generated for <code>FFmpegKit</code> sessions.
  */
 @FunctionalInterface
-public interface LogCallback {
+public interface StatisticsCallback {
 
     /**
-     * <p>Called when a log entry is received.
+     * <p>Called when a statistics entry is received.
      *
-     * @param log log entry
+     * @param statistics statistics entry
      */
-    void apply(final Log log);
+    void apply(final Statistics statistics);
 
 }

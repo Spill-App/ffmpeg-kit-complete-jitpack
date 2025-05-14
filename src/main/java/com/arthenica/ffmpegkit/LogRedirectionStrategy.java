@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2021 Taner Sener
+ * Copyright (c) 2021 Taner Sener
  *
  * This file is part of FFmpegKit.
  *
@@ -19,17 +19,10 @@
 
 package com.arthenica.ffmpegkit;
 
-/**
- * <p>Callback function that receives logs generated for <code>FFmpegKit</code> sessions.
- */
-@FunctionalInterface
-public interface LogCallback {
-
-    /**
-     * <p>Called when a log entry is received.
-     *
-     * @param log log entry
-     */
-    void apply(final Log log);
-
+public enum LogRedirectionStrategy {
+    ALWAYS_PRINT_LOGS,
+    PRINT_LOGS_WHEN_NO_CALLBACKS_DEFINED,
+    PRINT_LOGS_WHEN_GLOBAL_CALLBACK_NOT_DEFINED,
+    PRINT_LOGS_WHEN_SESSION_CALLBACK_NOT_DEFINED,
+    NEVER_PRINT_LOGS
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Taner Sener
+ * Copyright (c) 2020-2021 Taner Sener
  *
  * This file is part of FFmpegKit.
  *
@@ -19,45 +19,25 @@
 
 package com.arthenica.ffmpegkit;
 
-public class ReturnCode {
+/**
+ * <p>Lists signals handled by FFmpegKit library.
+ */
+public enum Signal {
 
-    public static int SUCCESS = 0;
-
-    public static int CANCEL = 255;
+    SIGINT(2),
+    SIGQUIT(3),
+    SIGPIPE(13),
+    SIGTERM(15),
+    SIGXCPU(24);
 
     private final int value;
 
-    public ReturnCode(final int value) {
+    Signal(int value) {
         this.value = value;
-    }
-
-    public static boolean isSuccess(final ReturnCode returnCode) {
-        return (returnCode != null && returnCode.getValue() == SUCCESS);
-    }
-
-    public static boolean isCancel(final ReturnCode returnCode) {
-        return (returnCode != null && returnCode.getValue() == CANCEL);
     }
 
     public int getValue() {
         return value;
-    }
-
-    public boolean isValueSuccess() {
-        return (value == SUCCESS);
-    }
-
-    public boolean isValueError() {
-        return ((value != SUCCESS) && (value != CANCEL));
-    }
-
-    public boolean isValueCancel() {
-        return (value == CANCEL);
-    }
-
-    @Override
-    public String toString() {
-        return String.valueOf(value);
     }
 
 }
