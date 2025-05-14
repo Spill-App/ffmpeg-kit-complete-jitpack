@@ -1,6 +1,5 @@
 package com.arthenica.ffmpegkit;
 
-@FunctionalInterface
-public interface FFprobeSessionCompleteCallback {
+public class FFprobeSessionCompleteCallback {
 
 }
