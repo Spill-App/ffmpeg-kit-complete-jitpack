@@ -1,0 +1,42 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
+
+group = 'com.arthenica'
+version = '6.0-2'
+
+repositories {
+    mavenCentral()
+    google()
+}
+
+// Create the core classes needed by FFmpeg Kit
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+        }
+    }
+}
+
+// We're including the AARs
+jar {
+    from('libs') {
+        include '*.aar'
+    }
+}
+
+// Configure publishing
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            
+            // Set the coordinates - this will be the main artifact
+            groupId = 'com.arthenica'
+            artifactId = 'ffmpeg-kit'
+            version = '6.0-2'
+        }
+    }
+}
