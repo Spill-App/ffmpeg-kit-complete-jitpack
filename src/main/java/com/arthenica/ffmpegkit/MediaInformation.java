@@ -1,6 +1,6 @@
 package com.arthenica.ffmpegkit;
 
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
 /**
  * Media information class.
