@@ -1,26 +1,31 @@
 package com.arthenica.ffmpegkit;
 
-import java.util.List;
-import java.util.ArrayList;
-
 /**
  * Media information session.
  */
 public class MediaInformationSession extends Session {
     public MediaInformationSession() {
-        // Default constructor
+        super();
+        setSessionType(SessionType.MEDIA_INFORMATION);
     }
     
     public MediaInformationSession(String command) {
-        // Constructor with command
+        super();
+        this.command = command;
+        setSessionType(SessionType.MEDIA_INFORMATION);
     }
     
     public MediaInformationSession(String command, ExecuteCallback executeCallback) {
-        // Constructor with command and execute callback
+        super();
+        this.command = command;
+        setSessionType(SessionType.MEDIA_INFORMATION);
     }
     
     public MediaInformationSession(String command, ExecuteCallback executeCallback, LogCallback logCallback) {
-        // Constructor with command, execute callback, and log callback
+        super();
+        this.command = command;
+        this.logCallback = logCallback;
+        setSessionType(SessionType.MEDIA_INFORMATION);
     }
     
     public static MediaInformationSession create(String[] arguments, ExecuteCallback executeCallback, LogCallback logCallback) {
@@ -29,5 +34,10 @@ public class MediaInformationSession extends Session {
     
     public MediaInformation getMediaInformation() {
         return new MediaInformation();
+    }
+    
+    @Override
+    public boolean isMediaInformation() {
+        return true;
     }
 }

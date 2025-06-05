@@ -8,23 +8,34 @@ import java.util.ArrayList;
  */
 public class FFmpegSession extends Session {
     public FFmpegSession() {
-        // Default constructor
+        super();
+        setSessionType(SessionType.FFMPEG);
     }
     
     public FFmpegSession(String command) {
-        // Constructor with command
+        super();
+        this.command = command;
+        setSessionType(SessionType.FFMPEG);
     }
     
     public FFmpegSession(String command, ExecuteCallback executeCallback) {
-        // Constructor with command and execute callback
+        super();
+        this.command = command;
+        setSessionType(SessionType.FFMPEG);
     }
     
     public FFmpegSession(String command, ExecuteCallback executeCallback, LogCallback logCallback) {
-        // Constructor with command, execute callback, and log callback
+        super();
+        this.command = command;
+        this.logCallback = logCallback;
+        setSessionType(SessionType.FFMPEG);
     }
     
     public FFmpegSession(String command, ExecuteCallback executeCallback, LogCallback logCallback, StatisticsCallback statisticsCallback) {
-        // Constructor with command, execute callback, log callback, and statistics callback
+        super();
+        this.command = command;
+        this.logCallback = logCallback;
+        setSessionType(SessionType.FFMPEG);
     }
     
     public static FFmpegSession create(String[] arguments, ExecuteCallback executeCallback, LogCallback logCallback, StatisticsCallback statisticsCallback, LogRedirectionStrategy logRedirectionStrategy) {
@@ -37,5 +48,10 @@ public class FFmpegSession extends Session {
     
     public List<Statistics> getStatistics() {
         return new ArrayList<>();
+    }
+    
+    @Override
+    public boolean isFFmpeg() {
+        return true;
     }
 }

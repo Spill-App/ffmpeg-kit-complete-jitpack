@@ -71,4 +71,16 @@ public class FFmpegKitConfig {
     public static void ffprobeExecute(FFprobeSession ffprobeSession) {}
     
     public static void getMediaInformationExecute(MediaInformationSession mediaInformationSession, int timeout) {}
+
+    public static FFmpegSession createFFmpegSession(String[] arguments) {
+        return new FFmpegSession();
+    }
+
+    public static FFprobeSession createFFprobeSession(String[] arguments) {
+        return new FFprobeSession();
+    }
+
+    public static MediaInformationSession createMediaInformationSession(String[] arguments) {
+        return new MediaInformationSession();
+    }
 }

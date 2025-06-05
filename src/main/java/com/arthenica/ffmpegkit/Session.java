@@ -16,6 +16,12 @@ public class Session {
     protected Date createTime;
     protected Date startTime;
     protected Date endTime;
+    protected SessionType sessionType;
+    
+    // Constructor
+    public Session() {
+        this.sessionType = SessionType.UNKNOWN;
+    }
     
     public String getCommand() {
         return command;
@@ -57,23 +63,23 @@ public class Session {
         return false;
     }
     
+    // These methods should return the correct type based on the actual session type
     public boolean isFFmpeg() {
-        return false;
+        return this instanceof FFmpegSession || sessionType == SessionType.FFMPEG;
     }
     
     public boolean isFFprobe() {
-        return false;
+        return this instanceof FFprobeSession || sessionType == SessionType.FFPROBE;
     }
     
     public boolean isMediaInformation() {
-        return false;
+        return this instanceof MediaInformationSession || sessionType == SessionType.MEDIA_INFORMATION;
     }
     
     public LogCallback getLogCallback() {
         return logCallback;
     }
     
-    // New methods
     public long getSessionId() {
         return sessionId;
     }
@@ -84,5 +90,10 @@ public class Session {
     
     public Date getStartTime() {
         return startTime;
+    }
+    
+    // Protected method to set session type
+    protected void setSessionType(SessionType type) {
+        this.sessionType = type;
     }
 }
