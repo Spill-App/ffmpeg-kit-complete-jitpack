@@ -9,6 +9,8 @@ import java.util.ArrayList;
  * FFmpeg Kit configuration.
  */
 public class FFmpegKitConfig {
+    private static final Map<Long, Session> sessions = new HashMap<>();
+    
     // Methods from the error log
     public static void ffmpegExecute(FFmpegSession ffmpegSession) {}
     public static void enableFFmpegSessionCompleteCallback(SessionCallback callback) {}
