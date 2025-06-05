@@ -16,7 +16,6 @@ public class FFmpegKitConfig {
     public static void enableMediaInformationSessionCompleteCallback(SessionCallback callback) {}
     public static void enableLogCallback(LogCallback callback) {}
     public static void enableStatisticsCallback(StatisticsCallback callback) {}
-    public static Session getSession(long sessionId) { return new Session(); }
     public static void enableRedirection() {}
     public static void disableRedirection() {}
     public static void setFontconfigConfigurationPath(String path) {}
@@ -32,9 +31,6 @@ public class FFmpegKitConfig {
     public static String getBuildDate() { return ""; }
     public static void setEnvironmentVariable(String variableName, String variableValue) {}
     public static void ignoreSignal(Signal signal) {}
-    public static void asyncFFmpegExecute(FFmpegSession session) {}
-    public static void asyncFFprobeExecute(FFprobeSession session) {}
-    public static void asyncGetMediaInformationExecute(MediaInformationSession session, int timeout) {}
     public static Level getLogLevel() { return Level.AV_LOG_INFO; }
     public static void setLogLevel(Level level) {}
     public static int getSessionHistorySize() { return 0; }
@@ -82,5 +78,39 @@ public class FFmpegKitConfig {
 
     public static MediaInformationSession createMediaInformationSession(String[] arguments) {
         return new MediaInformationSession();
+    }
+
+    public static void asyncFFmpegExecute(FFmpegSession session) {
+        addSession(session);
+    }
+    
+    public static void asyncFFprobeExecute(FFprobeSession session) {
+        addSession(session);
+    }
+    
+    public static void asyncGetMediaInformationExecute(MediaInformationSession session, int timeout) {
+        addSession(session);
+    }
+    
+    public static void asyncFFmpegExecute(Session session) {
+        addSession(session);
+    }
+    
+    public static void asyncFFprobeExecute(Session session) {
+        addSession(session);
+    }
+    
+    public static void asyncGetMediaInformationExecute(Session session, int timeout) {
+        addSession(session);
+    }
+
+    public static Session getSession(long sessionId) {
+        return sessions.get(sessionId);
+    }
+    
+    public static void addSession(Session session) {
+        if (session != null) {
+            sessions.put(session.getSessionId(), session);
+        }
     }
 }
