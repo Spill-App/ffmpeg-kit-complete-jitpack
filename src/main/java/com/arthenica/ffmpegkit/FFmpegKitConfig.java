@@ -3,6 +3,7 @@ package com.arthenica.ffmpegkit;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.ArrayList;
 
 /**
@@ -10,7 +11,7 @@ import java.util.ArrayList;
  */
 public class FFmpegKitConfig {
     private static final Map<Long, Session> sessions = new HashMap<>();
-    
+
     // Methods from the error log
     public static void ffmpegExecute(FFmpegSession ffmpegSession) {}
     public static void enableFFmpegSessionCompleteCallback(SessionCallback callback) {}
