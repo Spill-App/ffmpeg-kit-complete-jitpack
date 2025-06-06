@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -139,7 +141,7 @@ public class FFmpegKitConfig {
     }
 
     // Helper method to extract input path from FFmpeg command
-    private static String extractInputPath(String command) {
+    private static String extractInputPathManual(String command) {
         try {
             String[] parts = command.split("\\s+");
             // Look for -i flag followed by input path
@@ -163,8 +165,28 @@ public class FFmpegKitConfig {
         return null;
     }
 
-    // Helper method to extract output path from FFmpeg command
+    private static String extractInputPath(String command) {
+        // Try regex first, fall back to original method
+        String result = extractInputPathRegex(command);
+        if (result == null) {
+            // Fallback to manual parsing
+            result = extractInputPathManual(command);
+        }
+        return result;
+    }
+
     private static String extractOutputPath(String command) {
+        // Try regex first, fall back to original method  
+        String result = extractOutputPathRegex(command);
+        if (result == null) {
+            // Fallback to manual parsing
+            result = extractOutputPathManual(command);
+        }
+        return result;
+    }
+
+    // Helper method to extract output path from FFmpeg command
+    private static String extractOutputPathManual(String command) {
         try {
             String[] parts = command.split("\\s+");
             // Look for the last argument that looks like a file path
@@ -178,6 +200,60 @@ public class FFmpegKitConfig {
             }
         } catch (Exception e) {
             System.out.println("FFmpegKitConfig: Error parsing output path: " + e.getMessage());
+        }
+        return null;
+    }
+
+    // Alternative method using regex to parse the command more accurately:
+    private static String extractInputPathRegex(String command) {
+        try {
+            // Pattern to match: -i followed by a file path
+            // The path can contain spaces and ends when we hit the next parameter (starts with -)
+            Pattern pattern = Pattern.compile("-i\\s+([^-]+?)\\s+-");
+            Matcher matcher = pattern.matcher(command);
+            
+            if (matcher.find()) {
+                String inputPath = matcher.group(1).trim();
+                System.out.println("FFmpegKitConfig: Regex extracted input path: " + inputPath);
+                return inputPath;
+            } else {
+                // If no match found, try to get everything after -i until end
+                int inputFlagIndex = command.indexOf(" -i ");
+                if (inputFlagIndex != -1) {
+                    int inputPathStart = inputFlagIndex + 4;
+                    // Find next parameter or end of string
+                    int nextParam = command.indexOf(" -", inputPathStart);
+                    if (nextParam == -1) nextParam = command.length();
+                    
+                    String inputPath = command.substring(inputPathStart, nextParam).trim();
+                    System.out.println("FFmpegKitConfig: Fallback extracted input path: " + inputPath);
+                    return inputPath;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("FFmpegKitConfig: Error in regex parsing: " + e.getMessage());
+        }
+        return null;
+    }
+
+    private static String extractOutputPathRegex(String command) {
+        try {
+            // The output path is typically the last argument that looks like a file path
+            // Match paths that start with / and end with video extensions
+            Pattern pattern = Pattern.compile("(/[^\\s]+\\.(mp4|mov|avi|mkv|webm|3gp))(?:\\s|$)");
+            Matcher matcher = pattern.matcher(command);
+            
+            String lastMatch = null;
+            while (matcher.find()) {
+                lastMatch = matcher.group(1);
+            }
+            
+            if (lastMatch != null) {
+                System.out.println("FFmpegKitConfig: Regex extracted output path: " + lastMatch);
+                return lastMatch;
+            }
+        } catch (Exception e) {
+            System.out.println("FFmpegKitConfig: Error in regex output parsing: " + e.getMessage());
         }
         return null;
     }
