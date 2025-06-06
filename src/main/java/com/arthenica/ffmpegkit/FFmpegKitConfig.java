@@ -24,7 +24,7 @@ public class FFmpegKitConfig {
     private static SessionCallback ffprobeSessionCompleteCallback;
     private static SessionCallback mediaInformationSessionCompleteCallback;
     
-    // Session management methods (existing)
+    // Session management methods
     public static Session getSession(long sessionId) {
         Session session = sessions.get(sessionId);
         System.out.println("FFmpegKitConfig.getSession(" + sessionId + ") = " + (session != null ? session.getClass().getSimpleName() : "null"));
@@ -38,7 +38,28 @@ public class FFmpegKitConfig {
         }
     }
     
-    // Updated async execution methods to simulate completion
+    // MISSING METHODS - Add these back:
+    
+    // Synchronous execution methods
+    public static void ffmpegExecute(FFmpegSession ffmpegSession) {
+        System.out.println("FFmpegKitConfig.ffmpegExecute: " + ffmpegSession.getSessionId());
+        addSession(ffmpegSession);
+        simulateExecution(ffmpegSession);
+    }
+    
+    public static void ffprobeExecute(FFprobeSession ffprobeSession) {
+        System.out.println("FFmpegKitConfig.ffprobeExecute: " + ffprobeSession.getSessionId());
+        addSession(ffprobeSession);
+        simulateExecution(ffprobeSession);
+    }
+    
+    public static void getMediaInformationExecute(MediaInformationSession mediaInformationSession, int timeout) {
+        System.out.println("FFmpegKitConfig.getMediaInformationExecute: " + mediaInformationSession.getSessionId());
+        addSession(mediaInformationSession);
+        simulateExecution(mediaInformationSession);
+    }
+    
+    // Asynchronous execution methods
     public static void asyncFFmpegExecute(FFmpegSession session) {
         System.out.println("FFmpegKitConfig.asyncFFmpegExecute: FFmpegSession " + session.getSessionId());
         addSession(session);
@@ -78,17 +99,17 @@ public class FFmpegKitConfig {
     // New method to simulate execution completion
     private static void simulateExecution(Session session) {
         // Update session state to running
-        session.state = SessionState.RUNNING;
-        session.startTime = new Date();
+        session.setState(SessionState.RUNNING);
+        session.setStartTime(new Date());
         
         // Simulate execution completion after a short delay
         executor.schedule(() -> {
             System.out.println("FFmpegKitConfig: Simulating completion of session " + session.getSessionId());
             
             // Update session state
-            session.state = SessionState.COMPLETED;
-            session.endTime = new Date();
-            session.returnCode = new ReturnCode(0); // Success
+            session.setState(SessionState.COMPLETED);
+            session.setEndTime(new Date());
+            session.setReturnCode(new ReturnCode(0)); // Success
             
             // Trigger appropriate completion callback
             if (session instanceof FFmpegSession && ffmpegSessionCompleteCallback != null) {
@@ -125,7 +146,6 @@ public class FFmpegKitConfig {
         mediaInformationSessionCompleteCallback = callback;
     }
     
-    // All other existing methods remain the same...
     public static void enableLogCallback(LogCallback callback) {}
     public static void enableStatisticsCallback(StatisticsCallback callback) {}
     public static void enableRedirection() {}
