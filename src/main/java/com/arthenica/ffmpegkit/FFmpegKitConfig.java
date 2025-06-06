@@ -115,7 +115,7 @@ public class FFmpegKitConfig {
                 System.out.println("FFmpegKitConfig: Executing command: " + command);
                 String outputPath = extractOutputPath(command);
                 if (outputPath != null) {
-                    createDummyOutputFile(outputPath);
+                    createDummyOutputFile(command, outputPath);
                 }
             }
             
