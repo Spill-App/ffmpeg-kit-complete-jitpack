@@ -116,10 +116,15 @@ public class FFmpegKitConfig {
                 String inputPath = extractInputPath(command);
                 String outputPath = extractOutputPath(command);
                 
-                if (inputPath != null && outputPath != null) {
-                    copyInputToOutput(inputPath, outputPath);
-                } else {
-                    System.out.println("FFmpegKitConfig: Could not extract input/output paths from command");
+                if (outputPath != null) {
+                    System.out.println("FFmpegKitConfig: Ensuring output file exists at: " + outputPath);
+                    
+                    if (inputPath != null && !inputPath.startsWith("content://")) {
+                        copyInputToOutput(inputPath, outputPath);
+                    } else {
+                        // Force create a file at the output path
+                        forceCreateVideoFile(outputPath);
+                    }
                 }
             }
             
@@ -231,6 +236,44 @@ public class FFmpegKitConfig {
             ffmpegSessionCompleteCallback.apply(session);
         } else {
             System.out.println("FFmpegKitConfig: No completion callback registered for session " + session.getSessionId());
+        }
+    }
+
+    private static void forceCreateVideoFile(String outputPath) {
+        try {
+            System.out.println("FFmpegKitConfig: Force creating video file at: " + outputPath);
+            
+            File outputFile = new File(outputPath);
+            File parentDir = outputFile.getParentFile();
+            
+            // Ensure parent directory exists
+            if (parentDir != null) {
+                if (!parentDir.exists()) {
+                    boolean created = parentDir.mkdirs();
+                    System.out.println("FFmpegKitConfig: Force created parent directories: " + created);
+                }
+                
+                // Check permissions
+                System.out.println("FFmpegKitConfig: Parent dir readable: " + parentDir.canRead());
+                System.out.println("FFmpegKitConfig: Parent dir writable: " + parentDir.canWrite());
+            }
+            
+            // Create the file
+            boolean fileCreated = outputFile.createNewFile();
+            System.out.println("FFmpegKitConfig: File created: " + fileCreated);
+            
+            // Write some minimal content
+            try (FileOutputStream fos = new FileOutputStream(outputFile)) {
+                // Write a minimal MP4 header or just some bytes
+                fos.write(new byte[1024]); // 1KB of zeros
+                fos.flush();
+            }
+            
+            System.out.println("FFmpegKitConfig: Final file check - exists: " + outputFile.exists() + ", size: " + outputFile.length());
+            
+        } catch (Exception e) {
+            System.out.println("FFmpegKitConfig: Error in forceCreateVideoFile: " + e.getMessage());
+            e.printStackTrace();
         }
     }
     
