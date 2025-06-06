@@ -103,4 +103,20 @@ public class Session {
     protected void setSessionType(SessionType type) {
         this.sessionType = type;
     }
+
+    public void setState(SessionState state) {
+        this.state = state;
+    }
+
+    public void setReturnCode(ReturnCode returnCode) {
+        this.returnCode = returnCode;
+    }
+
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
+    }
 }
