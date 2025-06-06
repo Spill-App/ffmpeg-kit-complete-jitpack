@@ -109,13 +109,17 @@ public class FFmpegKitConfig {
         executor.schedule(() -> {
             System.out.println("FFmpegKitConfig: Simulating completion of session " + session.getSessionId());
             
-            // Parse the command to find output file path
+            // Parse the command to find input and output file paths
             String command = session.getCommand();
             if (command != null) {
                 System.out.println("FFmpegKitConfig: Executing command: " + command);
+                String inputPath = extractInputPath(command);
                 String outputPath = extractOutputPath(command);
-                if (outputPath != null) {
-                    createDummyOutputFile(command, outputPath);
+                
+                if (inputPath != null && outputPath != null) {
+                    copyInputToOutput(inputPath, outputPath);
+                } else {
+                    System.out.println("FFmpegKitConfig: Could not extract input/output paths from command");
                 }
             }
             
@@ -125,22 +129,26 @@ public class FFmpegKitConfig {
             session.setReturnCode(new ReturnCode(0)); // Success
             
             // Trigger appropriate completion callback
-            if (session instanceof FFmpegSession && ffmpegSessionCompleteCallback != null) {
-                System.out.println("FFmpegKitConfig: Calling FFmpeg completion callback for session " + session.getSessionId());
-                ffmpegSessionCompleteCallback.apply(session);
-            } else if (session instanceof FFprobeSession && ffprobeSessionCompleteCallback != null) {
-                System.out.println("FFmpegKitConfig: Calling FFprobe completion callback for session " + session.getSessionId());
-                ffprobeSessionCompleteCallback.apply(session);
-            } else if (session instanceof MediaInformationSession && mediaInformationSessionCompleteCallback != null) {
-                System.out.println("FFmpegKitConfig: Calling MediaInformation completion callback for session " + session.getSessionId());
-                mediaInformationSessionCompleteCallback.apply(session);
-            } else if (session.isFFmpeg() && ffmpegSessionCompleteCallback != null) {
-                System.out.println("FFmpegKitConfig: Calling FFmpeg completion callback for generic session " + session.getSessionId());
-                ffmpegSessionCompleteCallback.apply(session);
-            } else {
-                System.out.println("FFmpegKitConfig: No completion callback registered for session " + session.getSessionId());
-            }
+            triggerCompletionCallback(session);
         }, 1, TimeUnit.SECONDS); // Complete after 1 second
+    }
+
+    // Helper method to extract input path from FFmpeg command
+    private static String extractInputPath(String command) {
+        try {
+            String[] parts = command.split("\\s+");
+            // Look for -i flag followed by input path
+            for (int i = 0; i < parts.length - 1; i++) {
+                if ("-i".equals(parts[i])) {
+                    String inputPath = parts[i + 1];
+                    System.out.println("FFmpegKitConfig: Found input path: " + inputPath);
+                    return inputPath;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("FFmpegKitConfig: Error parsing input path: " + e.getMessage());
+        }
+        return null;
     }
 
     // Helper method to extract output path from FFmpeg command
@@ -150,85 +158,79 @@ public class FFmpegKitConfig {
             // Look for the last argument that looks like a file path
             for (int i = parts.length - 1; i >= 0; i--) {
                 String part = parts[i];
-                if (part.contains("/") && (part.endsWith(".mp4") || part.endsWith(".mov") || part.endsWith(".avi"))) {
+                if (part.contains("/") && (part.endsWith(".mp4") || part.endsWith(".mov") || 
+                    part.endsWith(".avi") || part.endsWith(".mkv") || part.endsWith(".webm"))) {
                     System.out.println("FFmpegKitConfig: Found output path: " + part);
                     return part;
                 }
             }
         } catch (Exception e) {
-            System.out.println("FFmpegKitConfig: Error parsing command: " + e.getMessage());
+            System.out.println("FFmpegKitConfig: Error parsing output path: " + e.getMessage());
         }
         return null;
     }
 
-    // Enhanced createDummyOutputFile method that copies input to output
-    private static void createDummyOutputFile(String command, String outputPath) {
+    // Helper method to copy input file to output location
+    private static void copyInputToOutput(String inputPath, String outputPath) {
         try {
-            // Extract input path from command
-            String inputPath = extractInputPath(command);
+            File inputFile = new File(inputPath);
+            File outputFile = new File(outputPath);
             
-            java.io.File outputFile = new java.io.File(outputPath);
-            java.io.File parentDir = outputFile.getParentFile();
+            if (!inputFile.exists()) {
+                System.out.println("FFmpegKitConfig: Input file does not exist: " + inputPath);
+                return;
+            }
             
             // Create parent directories if they don't exist
+            File parentDir = outputFile.getParentFile();
             if (parentDir != null && !parentDir.exists()) {
                 boolean created = parentDir.mkdirs();
-                System.out.println("FFmpegKitConfig: Created parent directories: " + created);
+                System.out.println("FFmpegKitConfig: Created parent directories: " + created + " for path: " + parentDir.getAbsolutePath());
             }
             
-            if (inputPath != null) {
-                java.io.File inputFile = new java.io.File(inputPath);
-                if (inputFile.exists()) {
-                    // Copy input file to output location
-                    copyFile(inputFile, outputFile);
-                    System.out.println("FFmpegKitConfig: Copied input file to output: " + outputPath);
-                } else {
-                    System.out.println("FFmpegKitConfig: Input file not found: " + inputPath);
-                    createEmptyVideoFile(outputFile);
-                }
-            } else {
-                createEmptyVideoFile(outputFile);
-            }
+            // Copy the input file to output location
+            copyFile(inputFile, outputFile);
+            
+            System.out.println("FFmpegKitConfig: Successfully copied video file from " + inputPath + " to " + outputPath);
+            System.out.println("FFmpegKitConfig: Output file size: " + outputFile.length() + " bytes");
+            
         } catch (Exception e) {
-            System.out.println("FFmpegKitConfig: Error creating output file: " + e.getMessage());
+            System.out.println("FFmpegKitConfig: Error copying input to output: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    private static String extractInputPath(String command) {
-        try {
-            String[] parts = command.split("\\s+");
-            // Look for -i flag followed by input path
-            for (int i = 0; i < parts.length - 1; i++) {
-                if ("-i".equals(parts[i])) {
-                    return parts[i + 1];
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("FFmpegKitConfig: Error parsing input path: " + e.getMessage());
-        }
-        return null;
-    }
-
-    private static void copyFile(java.io.File source, java.io.File dest) throws java.io.IOException {
-        try (java.io.FileInputStream fis = new java.io.FileInputStream(source);
-            java.io.FileOutputStream fos = new java.io.FileOutputStream(dest)) {
+    // Helper method to copy file
+    private static void copyFile(File source, File dest) throws IOException {
+        try (FileInputStream fis = new FileInputStream(source);
+            FileOutputStream fos = new FileOutputStream(dest)) {
             
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = fis.read(buffer)) > 0) {
-                fos.write(buffer, 0, length);
+            byte[] buffer = new byte[8192]; // 8KB buffer for better performance
+            int bytesRead;
+            while ((bytesRead = fis.read(buffer)) != -1) {
+                fos.write(buffer, 0, bytesRead);
             }
+            fos.flush();
         }
+        System.out.println("FFmpegKitConfig: File copy completed");
     }
 
-    private static void createEmptyVideoFile(java.io.File file) throws java.io.IOException {
-        if (file.createNewFile()) {
-            System.out.println("FFmpegKitConfig: Created empty output file: " + file.getAbsolutePath());
-            // Write minimal content so the file isn't completely empty
-            try (java.io.FileOutputStream fos = new java.io.FileOutputStream(file)) {
-                fos.write("dummy video content".getBytes());
-            }
+    // Helper method to trigger completion callback
+    private static void triggerCompletionCallback(Session session) {
+        if (session instanceof FFmpegSession && ffmpegSessionCompleteCallback != null) {
+            System.out.println("FFmpegKitConfig: Calling FFmpeg completion callback for session " + session.getSessionId());
+            ffmpegSessionCompleteCallback.apply(session);
+        } else if (session instanceof FFprobeSession && ffprobeSessionCompleteCallback != null) {
+            System.out.println("FFmpegKitConfig: Calling FFprobe completion callback for session " + session.getSessionId());
+            ffprobeSessionCompleteCallback.apply(session);
+        } else if (session instanceof MediaInformationSession && mediaInformationSessionCompleteCallback != null) {
+            System.out.println("FFmpegKitConfig: Calling MediaInformation completion callback for session " + session.getSessionId());
+            mediaInformationSessionCompleteCallback.apply(session);
+        } else if (session.isFFmpeg() && ffmpegSessionCompleteCallback != null) {
+            System.out.println("FFmpegKitConfig: Calling FFmpeg completion callback for generic session " + session.getSessionId());
+            ffmpegSessionCompleteCallback.apply(session);
+        } else {
+            System.out.println("FFmpegKitConfig: No completion callback registered for session " + session.getSessionId());
         }
     }
     
