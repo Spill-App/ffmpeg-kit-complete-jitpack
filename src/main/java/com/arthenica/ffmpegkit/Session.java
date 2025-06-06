@@ -3,11 +3,14 @@ package com.arthenica.ffmpegkit;
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Base session class.
  */
 public class Session {
+    private static final AtomicLong sessionIdCounter = new AtomicLong(1);
+    
     protected String command;
     protected ReturnCode returnCode;
     protected SessionState state;
@@ -20,7 +23,11 @@ public class Session {
     
     // Constructor
     public Session() {
+        this.sessionId = sessionIdCounter.getAndIncrement();
+        this.createTime = new Date();
         this.sessionType = SessionType.UNKNOWN;
+        this.state = SessionState.CREATED;
+        System.out.println("Session created: ID=" + sessionId + ", Type=" + getClass().getSimpleName());
     }
     
     public String getCommand() {
