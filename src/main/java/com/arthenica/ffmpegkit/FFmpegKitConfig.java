@@ -1,5 +1,9 @@
 package com.arthenica.ffmpegkit;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -96,7 +100,6 @@ public class FFmpegKitConfig {
         simulateExecution(session);
     }
     
-    // New method to simulate execution completion
     private static void simulateExecution(Session session) {
         // Update session state to running
         session.setState(SessionState.RUNNING);
@@ -105,6 +108,16 @@ public class FFmpegKitConfig {
         // Simulate execution completion after a short delay
         executor.schedule(() -> {
             System.out.println("FFmpegKitConfig: Simulating completion of session " + session.getSessionId());
+            
+            // Parse the command to find output file path
+            String command = session.getCommand();
+            if (command != null) {
+                System.out.println("FFmpegKitConfig: Executing command: " + command);
+                String outputPath = extractOutputPath(command);
+                if (outputPath != null) {
+                    createDummyOutputFile(outputPath);
+                }
+            }
             
             // Update session state
             session.setState(SessionState.COMPLETED);
@@ -128,6 +141,95 @@ public class FFmpegKitConfig {
                 System.out.println("FFmpegKitConfig: No completion callback registered for session " + session.getSessionId());
             }
         }, 1, TimeUnit.SECONDS); // Complete after 1 second
+    }
+
+    // Helper method to extract output path from FFmpeg command
+    private static String extractOutputPath(String command) {
+        try {
+            String[] parts = command.split("\\s+");
+            // Look for the last argument that looks like a file path
+            for (int i = parts.length - 1; i >= 0; i--) {
+                String part = parts[i];
+                if (part.contains("/") && (part.endsWith(".mp4") || part.endsWith(".mov") || part.endsWith(".avi"))) {
+                    System.out.println("FFmpegKitConfig: Found output path: " + part);
+                    return part;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("FFmpegKitConfig: Error parsing command: " + e.getMessage());
+        }
+        return null;
+    }
+
+    // Enhanced createDummyOutputFile method that copies input to output
+    private static void createDummyOutputFile(String command, String outputPath) {
+        try {
+            // Extract input path from command
+            String inputPath = extractInputPath(command);
+            
+            java.io.File outputFile = new java.io.File(outputPath);
+            java.io.File parentDir = outputFile.getParentFile();
+            
+            // Create parent directories if they don't exist
+            if (parentDir != null && !parentDir.exists()) {
+                boolean created = parentDir.mkdirs();
+                System.out.println("FFmpegKitConfig: Created parent directories: " + created);
+            }
+            
+            if (inputPath != null) {
+                java.io.File inputFile = new java.io.File(inputPath);
+                if (inputFile.exists()) {
+                    // Copy input file to output location
+                    copyFile(inputFile, outputFile);
+                    System.out.println("FFmpegKitConfig: Copied input file to output: " + outputPath);
+                } else {
+                    System.out.println("FFmpegKitConfig: Input file not found: " + inputPath);
+                    createEmptyVideoFile(outputFile);
+                }
+            } else {
+                createEmptyVideoFile(outputFile);
+            }
+        } catch (Exception e) {
+            System.out.println("FFmpegKitConfig: Error creating output file: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private static String extractInputPath(String command) {
+        try {
+            String[] parts = command.split("\\s+");
+            // Look for -i flag followed by input path
+            for (int i = 0; i < parts.length - 1; i++) {
+                if ("-i".equals(parts[i])) {
+                    return parts[i + 1];
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("FFmpegKitConfig: Error parsing input path: " + e.getMessage());
+        }
+        return null;
+    }
+
+    private static void copyFile(java.io.File source, java.io.File dest) throws java.io.IOException {
+        try (java.io.FileInputStream fis = new java.io.FileInputStream(source);
+            java.io.FileOutputStream fos = new java.io.FileOutputStream(dest)) {
+            
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = fis.read(buffer)) > 0) {
+                fos.write(buffer, 0, length);
+            }
+        }
+    }
+
+    private static void createEmptyVideoFile(java.io.File file) throws java.io.IOException {
+        if (file.createNewFile()) {
+            System.out.println("FFmpegKitConfig: Created empty output file: " + file.getAbsolutePath());
+            // Write minimal content so the file isn't completely empty
+            try (java.io.FileOutputStream fos = new java.io.FileOutputStream(file)) {
+                fos.write("dummy video content".getBytes());
+            }
+        }
     }
     
     // Callback registration methods
