@@ -147,6 +147,13 @@ public class FFmpegKitConfig {
                 if ("-i".equals(parts[i])) {
                     String inputPath = parts[i + 1];
                     System.out.println("FFmpegKitConfig: Found input path: " + inputPath);
+                    
+                    // Check if it's a content URI
+                    if (inputPath.startsWith("content://")) {
+                        System.out.println("FFmpegKitConfig: Input is a content URI: " + inputPath);
+                        return null;
+                    }
+                    
                     return inputPath;
                 }
             }
