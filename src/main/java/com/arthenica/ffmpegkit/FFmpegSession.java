@@ -39,7 +39,15 @@ public class FFmpegSession extends Session {
     }
     
     public static FFmpegSession create(String[] arguments, ExecuteCallback executeCallback, LogCallback logCallback, StatisticsCallback statisticsCallback, LogRedirectionStrategy logRedirectionStrategy) {
-        return new FFmpegSession();
+        FFmpegSession session = new FFmpegSession();
+        session.command = String.join(" ", arguments);
+        
+        // Store the session immediately upon creation
+        FFmpegKitConfig.addSession(session);
+        
+        System.out.println("FFmpegSession.create: Created and stored session " + session.getSessionId());
+        
+        return session;
     }
     
     public List<Statistics> getAllStatistics(int timeout) {
